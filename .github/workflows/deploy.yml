@@ -1,0 +1,33 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Build Backend
+        working-directory: backend
+        run: |
+          npm install
+          npm run build
+      - name: Build Frontend
+        working-directory: frontend
+        run: |
+          npm install
+          npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.PRODUCTION_API_URL }}
+          NEXT_PUBLIC_STRIPE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+      - name: Deploy to Production
+        run: echo "Deploy to your hosting platform (Vercel, Heroku, etc.)"
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
